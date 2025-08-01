@@ -122,34 +122,6 @@ const Video = styled.iframe`
   border: none;
 `;
 
-const VideoControls = styled.div`
-  position: absolute;
-  bottom: ${props => props.theme.spacing.md};
-  left: ${props => props.theme.spacing.md};
-  display: flex;
-  gap: ${props => props.theme.spacing.sm};
-  z-index: 10;
-`;
-
-const ControlButton = styled(motion.button)`
-  width: 40px;
-  height: 40px;
-  border-radius: ${props => props.theme.borderRadius.full};
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all ${props => props.theme.transitions.normal};
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: scale(1.1);
-  }
-`;
-
 const ThumbnailOverlay = styled(motion.div)`
   position: absolute;
   top: 0;

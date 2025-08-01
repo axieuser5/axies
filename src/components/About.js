@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useCountUp } from 'react-countup';
 
 const AboutSection = styled.section`
   padding: ${props => props.theme.spacing.xxxl} 0;
