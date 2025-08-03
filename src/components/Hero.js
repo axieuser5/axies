@@ -335,6 +335,8 @@ const DemoIframe = styled.iframe`
   height: 100%;
   border: none;
   border-radius: inherit;
+  pointer-events: auto;
+  scrolling: no;
 `;
 
 const LoadingOverlay = styled(motion.div)`
@@ -577,6 +579,9 @@ const Hero = () => {
                     src="https://chatbotex1.netlify.app"
                     title="Axie Studio AI Agent Demo"
                     allow="microphone; camera"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+                    scrolling="no"
+                    style={{ overflow: 'hidden' }}
                   />
                   
                   {isLoading && (

@@ -105,6 +105,8 @@ const StyledIframe = styled.iframe`
   height: 100%;
   border: none;
   border-radius: inherit;
+  pointer-events: auto;
+  scrolling: no;
 `;
 
 export const ContainerScroll = ({
@@ -214,6 +216,9 @@ export const AxieAgentContainer = () => {
           src="https://axieagent.netlify.app"
           title="Axie Agent - AI Assistant"
           allow="microphone; camera; geolocation"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+          scrolling="no"
+          style={{ overflow: 'hidden' }}
         />
       </IframeWrapper>
     </ContainerScroll>
