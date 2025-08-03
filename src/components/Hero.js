@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FaPlay, FaArrowRight, FaCode, FaRocket, FaBolt } from 'react-icons/fa';
+import { FaPlay, FaArrowRight, FaCode, FaRocket, FaBolt, FaTimes } from 'react-icons/fa';
 
 const HeroSection = styled.section`
   min-height: 100vh;
@@ -135,6 +135,23 @@ const MainHeading = styled(motion.h1)`
   line-height: 1.1;
   margin-bottom: 1.5rem;
   letter-spacing: -0.02em;
+  position: relative;
+  
+  /* Glass effect background */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -20px;
+    right: -20px;
+    bottom: -10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    z-index: -1;
+    opacity: 0.8;
+  }
   
   background: linear-gradient(
     135deg,
@@ -146,6 +163,7 @@ const MainHeading = styled(motion.h1)`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  padding: 10px 20px;
 `;
 
 const SubHeading = styled(motion.p)`
@@ -280,7 +298,7 @@ const DemoContainer = styled(motion.div)`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  padding: 1.5rem;
+  padding: 1rem;
   backdrop-filter: blur(20px);
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.3),
@@ -300,66 +318,15 @@ const DemoContainer = styled(motion.div)`
   }
 `;
 
-const DemoHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: between;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const DemoTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-
-  h3 {
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .demo-badge {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-`;
-
-const DemoControls = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`;
-
-const DemoButton = styled.button`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  
-  &.close { background: #ef4444; }
-  &.minimize { background: #f59e0b; }
-  &.maximize { background: #10b981; }
-`;
-
 const IframeContainer = styled.div`
   position: relative;
   border-radius: 12px;
   overflow: hidden;
   background: #000;
-  height: 400px;
+  height: 600px;
 
   @media (max-width: 640px) {
-    height: 300px;
+    height: 500px;
   }
 `;
 
@@ -399,6 +366,61 @@ const LoadingSpinner = styled.div`
   }
 `;
 
+// Video Modal Components
+const ModalOverlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+`;
+
+const ModalContent = styled(motion.div)`
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+`;
+
+const VideoIframe = styled.iframe`
+  width: 100%;
+  height: 100%;
+  border: none;
+`;
+
 const Hero = () => {
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -406,8 +428,7 @@ const Hero = () => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -417,6 +438,7 @@ const Hero = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Remove auto-scroll effect
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -447,137 +469,162 @@ const Hero = () => {
   ];
 
   const stats = [
-    { icon: FaBolt, text: '99.9% Uptime' },
-    { icon: FaRocket, text: 'Sub-100ms Response' },
-    { icon: FaCode, text: 'Enterprise Ready' }
+    { icon: FaBolt, text: '99.9% Drifttid' },
+    { icon: FaRocket, text: 'Sub-100ms Svar' },
+    { icon: FaCode, text: 'Företagsredo' }
   ];
 
+  const handleVideoClick = () => {
+    setShowVideoModal(true);
+  };
+
+  const closeVideoModal = () => {
+    setShowVideoModal(false);
+  };
+
   return (
-    <HeroSection id="hem">
-      <BackgroundGrid />
-      <GradientOverlay />
-      
-      <FloatingElements>
-        {floatingOrbs.map((orb, index) => (
-          <FloatingOrb
-            key={index}
-            size={orb.size}
-            gradient={orb.gradient}
-            style={{
-              top: orb.top,
-              left: orb.left,
-              right: orb.right,
-              y
-            }}
-            animate={{
-              y: [0, -20, 0],
-              x: [0, 10, 0],
-            }}
-            transition={{
-              duration: 8 + index * 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </FloatingElements>
+    <>
+      <HeroSection id="hem">
+        <BackgroundGrid />
+        <GradientOverlay />
+        
+        <FloatingElements>
+          {floatingOrbs.map((orb, index) => (
+            <FloatingOrb
+              key={index}
+              size={orb.size}
+              gradient={orb.gradient}
+              style={{
+                top: orb.top,
+                left: orb.left,
+                right: orb.right,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                x: [0, 10, 0],
+              }}
+              transition={{
+                duration: 8 + index * 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </FloatingElements>
 
-      <Container>
-        <HeroGrid ref={ref}>
-          <ContentSection>
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={inView ? "visible" : "hidden"}
-            >
-              <AnnouncementBadge variants={itemVariants}>
-                <div className="badge-icon" />
-                <span>New: Advanced AI Agent Builder</span>
-                <FaArrowRight size={12} />
-              </AnnouncementBadge>
+        <Container>
+          <HeroGrid ref={ref}>
+            <ContentSection>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+              >
+                <AnnouncementBadge variants={itemVariants}>
+                  <div className="badge-icon" />
+                  <span>Nytt: Avancerad AI Agent Builder</span>
+                  <FaArrowRight size={12} />
+                </AnnouncementBadge>
 
-              <MainHeading variants={itemVariants}>
-                Build AI Agents That Actually Work
-              </MainHeading>
+                <MainHeading variants={itemVariants}>
+                  Bygg AI-Agenter Som Faktiskt Fungerar
+                </MainHeading>
 
-              <SubHeading variants={itemVariants}>
-                Create sophisticated AI-powered customer service agents with our visual builder. 
-                No code required. Enterprise-grade reliability. Deploy in minutes, not months.
-              </SubHeading>
+                <SubHeading variants={itemVariants}>
+                  Skapa sofistikerade AI-drivna kundserviceagenter med vår visuella byggare. 
+                  Ingen kod krävs. Företagskvalitet. Driftsätt på minuter, inte månader.
+                </SubHeading>
 
-              <CTASection variants={itemVariants}>
-                <PrimaryButton
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Start Building Free
-                  <FaArrowRight />
-                </PrimaryButton>
-                
-                <SecondaryButton
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <FaPlay />
-                  Watch Demo
-                </SecondaryButton>
-              </CTASection>
-
-              <StatsSection variants={itemVariants}>
-                {stats.map((stat, index) => (
-                  <StatItem key={index}>
-                    <stat.icon className="stat-icon" />
-                    <span className="stat-text">{stat.text}</span>
-                  </StatItem>
-                ))}
-              </StatsSection>
-            </motion.div>
-          </ContentSection>
-
-          <DemoSection>
-            <DemoContainer
-              initial={{ opacity: 0, scale: 0.8, rotateY: 15 }}
-              animate={inView ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.8, rotateY: 15 }}
-              transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              whileHover={{ scale: 1.02, rotateY: -2 }}
-            >
-              <DemoHeader>
-                <DemoTitle>
-                  <h3>Axie Agent</h3>
-                  <div className="demo-badge">Live</div>
-                </DemoTitle>
-                <DemoControls>
-                  <DemoButton className="close" />
-                  <DemoButton className="minimize" />
-                  <DemoButton className="maximize" />
-                </DemoControls>
-              </DemoHeader>
-
-              <IframeContainer>
-                <DemoIframe
-                  src="https://chatbotex1.netlify.app"
-                  title="Axie Studio AI Agent Demo"
-                  allow="microphone; camera"
-                />
-                
-                {isLoading && (
-                  <LoadingOverlay
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 0 }}
-                    transition={{ duration: 0.5, delay: 1.5 }}
+                <CTASection variants={itemVariants}>
+                  <PrimaryButton
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <LoadingSpinner />
-                    <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem' }}>
-                      Loading AI Agent...
-                    </p>
-                  </LoadingOverlay>
-                )}
-              </IframeContainer>
-            </DemoContainer>
-          </DemoSection>
-        </HeroGrid>
-      </Container>
-    </HeroSection>
+                    Börja Bygga Gratis
+                    <FaArrowRight />
+                  </PrimaryButton>
+                  
+                  <SecondaryButton
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleVideoClick}
+                  >
+                    <FaPlay />
+                    Se Demo
+                  </SecondaryButton>
+                </CTASection>
+
+                <StatsSection variants={itemVariants}>
+                  {stats.map((stat, index) => (
+                    <StatItem key={index}>
+                      <stat.icon className="stat-icon" />
+                      <span className="stat-text">{stat.text}</span>
+                    </StatItem>
+                  ))}
+                </StatsSection>
+              </motion.div>
+            </ContentSection>
+
+            <DemoSection>
+              <DemoContainer
+                initial={{ opacity: 0, scale: 0.8, rotateY: 15 }}
+                animate={inView ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.8, rotateY: 15 }}
+                transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                whileHover={{ scale: 1.02, rotateY: -2 }}
+              >
+                <IframeContainer>
+                  <DemoIframe
+                    src="https://chatbotex1.netlify.app"
+                    title="Axie Studio AI Agent Demo"
+                    allow="microphone; camera"
+                  />
+                  
+                  {isLoading && (
+                    <LoadingOverlay
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: 0 }}
+                      transition={{ duration: 0.5, delay: 1.5 }}
+                    >
+                      <LoadingSpinner />
+                      <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem' }}>
+                        Laddar AI Agent...
+                      </p>
+                    </LoadingOverlay>
+                  )}
+                </IframeContainer>
+              </DemoContainer>
+            </DemoSection>
+          </HeroGrid>
+        </Container>
+      </HeroSection>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <ModalOverlay
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={closeVideoModal}
+        >
+          <ModalContent
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CloseButton onClick={closeVideoModal}>
+              <FaTimes />
+            </CloseButton>
+            <VideoIframe
+              src="https://drive.google.com/file/d/1agJp2_Wt4EjbS8d5cNiKAmwbnm0SSo5u/preview"
+              title="Axie Studio Demo Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </ModalContent>
+        </ModalOverlay>
+      )}
+    </>
   );
 };
 

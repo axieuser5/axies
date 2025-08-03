@@ -210,12 +210,12 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { id: 'hem', label: 'Home' },
+    { id: 'hem', label: 'Hem' },
     { id: 'axie-agent', label: 'Agent' },
-    { id: 'coming-soon', label: 'Builder' },
-    { id: 'tjanster', label: 'Features' },
-    { id: 'om-oss', label: 'About' },
-    { id: 'kontakt', label: 'Contact' }
+    { id: 'coming-soon', label: 'Byggare' },
+    { id: 'tjanster', label: 'Funktioner' },
+    { id: 'om-oss', label: 'Om Oss' },
+    { id: 'kontakt', label: 'Kontakt' }
   ];
 
   return (
@@ -255,7 +255,7 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Get Started
+            Kom Igång
           </CTAButton>
         </NavMenu>
 
