@@ -304,7 +304,7 @@ const FloatingChatbot = () => {
               <ChatIframe
                 src="https://chatbotex1.netlify.app"
                 title="Axie Chatbot"
-                allow="microphone; camera; geolocation"
+                allow="microphone *; camera *; geolocation *; autoplay; encrypted-media; fullscreen"
                 sandbox="allow-scripts allow-forms allow-popups allow-presentation allow-same-origin"
                 referrerPolicy="no-referrer"
                 onLoad={handleIframeLoad}

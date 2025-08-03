@@ -218,7 +218,7 @@ export const AxieAgentContainer = () => {
         <StyledIframe
           src="https://axieagent.netlify.app"
           title="Axie Agent - AI Assistant"
-          allow="microphone; camera; geolocation"
+          allow="microphone *; camera *; geolocation *; autoplay; encrypted-media; fullscreen"
           sandbox="allow-scripts allow-forms allow-popups allow-presentation allow-same-origin"
           referrerPolicy="no-referrer"
           loading="lazy"
