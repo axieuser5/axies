@@ -522,17 +522,17 @@ const Hero = () => {
               >
                 <AnnouncementBadge variants={itemVariants}>
                   <div className="badge-icon" />
-                  <span>Nytt: Avancerad AI Agent Builder</span>
+                  <span>Nytt: AI-Powered Kundservice</span>
                   <FaArrowRight size={12} />
                 </AnnouncementBadge>
 
                 <MainHeading variants={itemVariants}>
-                  Bygg AI-Agenter Som Faktiskt Fungerar
+                  Revolutionera Din Kundservice Med AI
                 </MainHeading>
 
                 <SubHeading variants={itemVariants}>
-                  Skapa sofistikerade AI-drivna kundserviceagenter med vår visuella byggare. 
-                  Ingen kod krävs. Företagskvalitet. Driftsätt på minuter, inte månader.
+                  Vi erbjuder avancerade AI-chatbots och AI-agenter som hjälper företag att förbättra sin kundservice. 
+                  Våra lösningar ger snabba, precisa svar dygnet runt och ökar kundnöjdheten dramatiskt.
                 </SubHeading>
 
                 <CTASection variants={itemVariants}>
@@ -540,7 +540,7 @@ const Hero = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    Börja Bygga Gratis
+                    Kom Igång Idag
                     <FaArrowRight />
                   </PrimaryButton>
                   

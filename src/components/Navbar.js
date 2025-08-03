@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaChevronDown, FaTimes, FaBars } from 'react-icons/fa';
 
 const NavContainer = styled(motion.nav)`
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(10, 10, 10, 0.8);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  padding: 1rem 0;
+  padding: 0;
   transition: all 0.3s ease;
 `;
 
@@ -21,6 +22,7 @@ const NavContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 70px;
 
   @media (max-width: 768px) {
     padding: 0 1rem;
@@ -33,11 +35,11 @@ const Logo = styled(motion.div)`
   gap: 0.75rem;
   cursor: pointer;
   
-  .logo-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  .logo-image {
+    width: 40px;
+    height: 40px;
     border-radius: 8px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,77 +49,129 @@ const Logo = styled(motion.div)`
   }
   
   .logo-text {
-    color: white;
+    color: #1e293b;
     font-weight: 700;
     font-size: 1.25rem;
     letter-spacing: -0.02em;
   }
 `;
 
-const NavMenu = styled.ul`
+const DesktopMenu = styled.div`
   display: flex;
-  list-style: none;
-  gap: 2rem;
   align-items: center;
+  gap: 2rem;
 
   @media (max-width: 1024px) {
-    position: fixed;
-    left: ${props => props.isOpen ? '0' : '-100%'};
-    top: 80px;
-    flex-direction: column;
-    background: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(20px);
-    width: 100%;
-    text-align: center;
-    transition: left 0.3s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 2rem 0;
-    gap: 1.5rem;
+    display: none;
   }
 `;
 
-const NavItem = styled(motion.li)`
+const MenuItem = styled.div`
   position: relative;
 `;
 
-const NavLink = styled.a`
-  color: rgba(255, 255, 255, 0.8);
+const MenuLink = styled.a`
+  color: #64748b;
   font-weight: 500;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  position: relative;
   cursor: pointer;
   padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 
   &:hover {
-    color: white;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    transition: width 0.3s ease;
-  }
-
-  &:hover::after {
-    width: 100%;
+    color: #1e293b;
   }
 
   &.active {
-    color: white;
-  }
-
-  &.active::after {
-    width: 100%;
+    color: #6366f1;
+    font-weight: 600;
   }
 `;
 
-const CTAButton = styled(motion.button)`
+const DropdownMenu = styled(motion.div)`
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  min-width: 280px;
+  margin-top: 0.5rem;
+  z-index: 1001;
+`;
+
+const DropdownItem = styled.a`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    background: #f8fafc;
+  }
+`;
+
+const DropdownIcon = styled.div`
+  color: #6366f1;
+  margin-top: 0.125rem;
+`;
+
+const DropdownContent = styled.div`
+  flex: 1;
+`;
+
+const DropdownTitle = styled.div`
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+`;
+
+const DropdownDescription = styled.div`
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.4;
+`;
+
+const AuthButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
+
+const LoginButton = styled.button`
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #1e293b;
+    background: #f8fafc;
+  }
+`;
+
+const SignupButton = styled(motion.button)`
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
   border: none;
@@ -132,48 +186,80 @@ const CTAButton = styled(motion.button)`
     transform: translateY(-1px);
     box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
   }
-
-  @media (max-width: 1024px) {
-    margin-top: 1rem;
-  }
 `;
 
-const Hamburger = styled.button`
+const MobileMenuButton = styled.button`
   display: none;
-  flex-direction: column;
-  cursor: pointer;
   background: none;
   border: none;
+  color: #64748b;
+  font-size: 1.25rem;
+  cursor: pointer;
   padding: 0.5rem;
 
   @media (max-width: 1024px) {
-    display: flex;
+    display: block;
   }
 `;
 
-const Bar = styled.span`
-  width: 24px;
-  height: 2px;
-  background-color: white;
-  margin: 2px 0;
-  transition: 0.3s ease;
-  transform-origin: center;
+const MobileMenu = styled(motion.div)`
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  z-index: 999;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+`;
 
-  ${props => props.isOpen && `
-    &:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    &:nth-child(2) {
-      opacity: 0;
-    }
-    &:nth-child(3) {
-      transform: rotate(-45deg) translate(7px, -6px);
-    }
-  `}
+const MobileMenuItem = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const MobileLinkGroup = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const MobileLinkTitle = styled.div`
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+`;
+
+const MobileLink = styled.a`
+  display: block;
+  color: #64748b;
+  font-weight: 500;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #6366f1;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const MobileAuthButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f1f5f9;
 `;
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hem');
 
   useEffect(() => {
@@ -206,66 +292,181 @@ const Navbar = () => {
         block: 'start'
       });
     }
-    setIsOpen(false);
+    setIsMobileMenuOpen(false);
+    setActiveDropdown(null);
   };
 
-  const navItems = [
-    { id: 'hem', label: 'Hem' },
-    { id: 'axie-agent', label: 'Agent' },
-    { id: 'coming-soon', label: 'Byggare' },
-    { id: 'tjanster', label: 'Funktioner' },
-    { id: 'om-oss', label: 'Om Oss' },
-    { id: 'kontakt', label: 'Kontakt' }
-  ];
+  const menuData = {
+    logo: {
+      src: "/logo.png",
+      alt: "Axie Studio",
+      title: "Axie Studio",
+    },
+    menu: [
+      {
+        title: "Hem",
+        url: "#hem",
+      },
+      {
+        title: "Lösningar",
+        url: "#",
+        items: [
+          {
+            title: "AI Chatbots",
+            description: "Intelligenta chatbots för kundservice",
+            icon: "🤖",
+            url: "#tjanster",
+          },
+          {
+            title: "AI Agenter",
+            description: "Avancerade AI-agenter för företag",
+            icon: "🧠",
+            url: "#axie-agent",
+          },
+          {
+            title: "Agent Builder",
+            description: "Bygg dina egna AI-agenter visuellt",
+            icon: "🛠️",
+            url: "#coming-soon",
+          },
+        ],
+      },
+      {
+        title: "Funktioner",
+        url: "#tjanster",
+      },
+      {
+        title: "Om Oss",
+        url: "#om-oss",
+      },
+      {
+        title: "Kontakt",
+        url: "#kontakt",
+      },
+    ],
+    auth: {
+      login: { text: "Logga In", url: "/login" },
+      signup: { text: "Kom Igång", url: "/signup" },
+    },
+  };
 
   return (
-    <NavContainer
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <NavContent>
-        <Logo
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={(e) => handleNavClick(e, '#hem')}
-        >
-          <div className="logo-icon">A</div>
-          <div className="logo-text">Axie Studio</div>
-        </Logo>
-
-        <NavMenu isOpen={isOpen}>
-          {navItems.map((item, index) => (
-            <NavItem
-              key={item.id}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <NavLink
-                className={activeSection === item.id ? 'active' : ''}
-                onClick={(e) => handleNavClick(e, `#${item.id}`)}
-              >
-                {item.label}
-              </NavLink>
-            </NavItem>
-          ))}
-          
-          <CTAButton
+    <>
+      <NavContainer
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <NavContent>
+          <Logo
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={(e) => handleNavClick(e, '#hem')}
           >
-            Kom Igång
-          </CTAButton>
-        </NavMenu>
+            <div className="logo-image">A</div>
+            <div className="logo-text">{menuData.logo.title}</div>
+          </Logo>
 
-        <Hamburger onClick={() => setIsOpen(!isOpen)}>
-          <Bar isOpen={isOpen} />
-          <Bar isOpen={isOpen} />
-          <Bar isOpen={isOpen} />
-        </Hamburger>
-      </NavContent>
-    </NavContainer>
+          <DesktopMenu>
+            {menuData.menu.map((item, index) => (
+              <MenuItem
+                key={index}
+                onMouseEnter={() => item.items && setActiveDropdown(index)}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
+                <MenuLink
+                  className={activeSection === item.url.replace('#', '') ? 'active' : ''}
+                  onClick={(e) => handleNavClick(e, item.url)}
+                >
+                  {item.title}
+                  {item.items && <FaChevronDown size={12} />}
+                </MenuLink>
+                
+                <AnimatePresence>
+                  {item.items && activeDropdown === index && (
+                    <DropdownMenu
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {item.items.map((subItem, subIndex) => (
+                        <DropdownItem
+                          key={subIndex}
+                          onClick={(e) => handleNavClick(e, subItem.url)}
+                        >
+                          <DropdownIcon>{subItem.icon}</DropdownIcon>
+                          <DropdownContent>
+                            <DropdownTitle>{subItem.title}</DropdownTitle>
+                            <DropdownDescription>{subItem.description}</DropdownDescription>
+                          </DropdownContent>
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  )}
+                </AnimatePresence>
+              </MenuItem>
+            ))}
+          </DesktopMenu>
+
+          <AuthButtons>
+            <LoginButton>{menuData.auth.login.text}</LoginButton>
+            <SignupButton
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {menuData.auth.signup.text}
+            </SignupButton>
+          </AuthButtons>
+
+          <MobileMenuButton onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </MobileMenuButton>
+        </NavContent>
+      </NavContainer>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <MobileMenu
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {menuData.menu.map((item, index) => (
+              <MobileMenuItem key={index}>
+                {item.items ? (
+                  <MobileLinkGroup>
+                    <MobileLinkTitle>{item.title}</MobileLinkTitle>
+                    {item.items.map((subItem, subIndex) => (
+                      <MobileLink
+                        key={subIndex}
+                        onClick={(e) => handleNavClick(e, subItem.url)}
+                      >
+                        {subItem.icon} {subItem.title}
+                      </MobileLink>
+                    ))}
+                  </MobileLinkGroup>
+                ) : (
+                  <MobileLink onClick={(e) => handleNavClick(e, item.url)}>
+                    {item.title}
+                  </MobileLink>
+                )}
+              </MobileMenuItem>
+            ))}
+            
+            <MobileAuthButtons>
+              <LoginButton style={{ width: '100%', textAlign: 'center' }}>
+                {menuData.auth.login.text}
+              </LoginButton>
+              <SignupButton style={{ width: '100%' }}>
+                {menuData.auth.signup.text}
+              </SignupButton>
+            </MobileAuthButtons>
+          </MobileMenu>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
