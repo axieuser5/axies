@@ -336,10 +336,10 @@ const DemoIframe = styled.iframe`
   border: none;
   border-radius: inherit;
   pointer-events: auto;
-  scrolling: no;
-  overflow: hidden;
   
-  /* Prevent any scroll manipulation */
+  /* Isolate iframe from parent scroll */
+  isolation: isolate;
+  
   &:focus {
     outline: none;
   }
@@ -440,65 +440,62 @@ const Hero = () => {
 
   // Prevent iframe from scrolling the parent page
   useEffect(() => {
-    const preventIframeScroll = (e) => {
-      // If the event comes from an iframe, prevent it from bubbling
-      if (e.target.tagName === 'IFRAME') {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
-
-    const preventWindowScroll = () => {
-      // Store current scroll position
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-      
-      // Restore scroll position if it changes unexpectedly
-      window.onscroll = function() {
-        if (Math.abs(window.pageYOffset - scrollTop) > 50) {
-          window.scrollTo(scrollLeft, scrollTop);
-        }
-      };
-    };
-
-    // Add event listeners
-    document.addEventListener('scroll', preventIframeScroll, true);
-    document.addEventListener('wheel', preventIframeScroll, true);
-    
-    // Override window scroll methods temporarily
+    // Store original scroll methods
     const originalScrollTo = window.scrollTo;
     const originalScrollBy = window.scrollBy;
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
     
-    let scrollLocked = false;
+    // Track if scroll was initiated by user or programmatically
+    let userInitiatedScroll = false;
+    let lastUserScrollTime = 0;
     
-    window.scrollTo = function(...args) {
-      if (!scrollLocked) {
-        originalScrollTo.apply(this, args);
+    // Override scroll methods to detect programmatic scrolling
+    window.scrollTo = function(x, y) {
+      const now = Date.now();
+      // Allow scroll if it's recent user interaction or if it's a small adjustment
+      if (now - lastUserScrollTime < 100 || Math.abs(y - window.pageYOffset) < 10) {
+        originalScrollTo.call(this, x, y);
       }
     };
     
-    window.scrollBy = function(...args) {
-      if (!scrollLocked) {
-        originalScrollBy.apply(this, args);
+    window.scrollBy = function(x, y) {
+      const now = Date.now();
+      if (now - lastUserScrollTime < 100 || Math.abs(y) < 10) {
+        originalScrollBy.call(this, x, y);
       }
     };
 
-    // Lock scroll when iframe is focused
-    const iframes = document.querySelectorAll('iframe');
-    iframes.forEach(iframe => {
-      iframe.addEventListener('focus', () => {
-        scrollLocked = true;
-        setTimeout(() => { scrollLocked = false; }, 1000);
-      });
+    // Override scrollIntoView for elements
+    Element.prototype.scrollIntoView = function(options) {
+      const now = Date.now();
+      if (now - lastUserScrollTime < 100) {
+        originalScrollIntoView.call(this, options);
+      }
+    };
+
+    // Track user-initiated scroll events
+    const trackUserScroll = () => {
+      lastUserScrollTime = Date.now();
+    };
+
+    // Listen for user scroll events
+    window.addEventListener('wheel', trackUserScroll, { passive: true });
+    window.addEventListener('touchstart', trackUserScroll, { passive: true });
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+        trackUserScroll();
+      }
     });
 
     return () => {
-      document.removeEventListener('scroll', preventIframeScroll, true);
-      document.removeEventListener('wheel', preventIframeScroll, true);
+      // Restore original methods
       window.scrollTo = originalScrollTo;
       window.scrollBy = originalScrollBy;
-      window.onscroll = null;
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+      
+      // Remove event listeners
+      window.removeEventListener('wheel', trackUserScroll);
+      window.removeEventListener('touchstart', trackUserScroll);
     };
   }, []);
   useEffect(() => {
@@ -647,16 +644,10 @@ const Hero = () => {
                   <DemoIframe
                     src="https://chatbotex1.netlify.app"
                     title="Axie Studio AI Agent Demo"
-                    allow="microphone; camera"
-                    sandbox="allow-scripts allow-forms allow-popups allow-presentation"
-                    scrolling="no"
+                    allow="microphone; camera; geolocation"
+                    sandbox="allow-scripts allow-forms allow-popups allow-presentation allow-same-origin"
                     referrerPolicy="no-referrer"
                     loading="lazy"
-                    style={{ 
-                      overflow: 'hidden',
-                      pointerEvents: 'auto',
-                      isolation: 'isolate'
-                    }}
                   />
                   
                   {isLoading && (
