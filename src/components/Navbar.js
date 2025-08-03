@@ -6,50 +6,73 @@ const NavContainer = styled(motion.nav)`
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 1000;
-  padding: ${props => props.theme.spacing.md} 0;
-  transition: all ${props => props.theme.transitions.normal};
-  box-shadow: ${props => props.scrolled ? props.theme.shadows.md : 'none'};
+  padding: 1rem 0;
+  transition: all 0.3s ease;
 `;
 
 const NavContent = styled.div`
-  max-width: ${props => props.theme.breakpoints.wide};
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 ${props => props.theme.spacing.xl};
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    padding: 0 ${props => props.theme.spacing.md};
+  @media (max-width: 768px) {
+    padding: 0 1rem;
   }
 `;
 
-const Logo = styled(motion.h2)`
-  color: ${props => props.theme.colors.primary};
-  font-weight: ${props => props.theme.fonts.weights.bold};
-  font-size: 1.5rem;
+const Logo = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   cursor: pointer;
+  
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .logo-text {
+    color: white;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
 `;
 
 const NavMenu = styled.ul`
   display: flex;
   list-style: none;
-  gap: ${props => props.theme.spacing.xl};
+  gap: 2rem;
+  align-items: center;
 
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+  @media (max-width: 1024px) {
     position: fixed;
     left: ${props => props.isOpen ? '0' : '-100%'};
-    top: 70px;
+    top: 80px;
     flex-direction: column;
-    background-color: ${props => props.theme.colors.background.primary};
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
     width: 100%;
     text-align: center;
-    transition: left ${props => props.theme.transitions.normal};
-    box-shadow: ${props => props.theme.shadows.lg};
-    padding: ${props => props.theme.spacing.xl} 0;
+    transition: left 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem 0;
+    gap: 1.5rem;
   }
 `;
 
@@ -58,14 +81,16 @@ const NavItem = styled(motion.li)`
 `;
 
 const NavLink = styled.a`
-  color: ${props => props.theme.colors.text.primary};
-  font-weight: ${props => props.theme.fonts.weights.medium};
-  transition: color ${props => props.theme.transitions.normal};
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
   position: relative;
   cursor: pointer;
+  padding: 0.5rem 0;
 
   &:hover {
-    color: ${props => props.theme.colors.primary};
+    color: white;
   }
 
   &::after {
@@ -73,14 +98,43 @@ const NavLink = styled.a`
     position: absolute;
     width: 0;
     height: 2px;
-    bottom: -5px;
+    bottom: -2px;
     left: 0;
-    background-color: ${props => props.theme.colors.primary};
-    transition: width ${props => props.theme.transitions.normal};
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    transition: width 0.3s ease;
   }
 
   &:hover::after {
     width: 100%;
+  }
+
+  &.active {
+    color: white;
+  }
+
+  &.active::after {
+    width: 100%;
+  }
+`;
+
+const CTAButton = styled(motion.button)`
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  @media (max-width: 1024px) {
+    margin-top: 1rem;
   }
 `;
 
@@ -90,37 +144,53 @@ const Hamburger = styled.button`
   cursor: pointer;
   background: none;
   border: none;
-  color: ${props => props.theme.colors.text.primary};
+  padding: 0.5rem;
 
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+  @media (max-width: 1024px) {
     display: flex;
   }
 `;
 
 const Bar = styled.span`
-  width: 25px;
-  height: 3px;
-  background-color: ${props => props.theme.colors.text.primary};
-  margin: 3px 0;
-  transition: ${props => props.theme.transitions.normal};
-  transform: ${props => props.isOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none'};
+  width: 24px;
+  height: 2px;
+  background-color: white;
+  margin: 2px 0;
+  transition: 0.3s ease;
+  transform-origin: center;
 
-  &:nth-child(2) {
-    opacity: ${props => props.isOpen ? '0' : '1'};
-  }
-
-  &:nth-child(3) {
-    transform: ${props => props.isOpen ? 'rotate(-45deg) translate(7px, -6px)' : 'none'};
-  }
+  ${props => props.isOpen && `
+    &:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    &:nth-child(2) {
+      opacity: 0;
+    }
+    &:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+  `}
 `;
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('hem');
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 100);
+      const sections = ['hem', 'axie-agent', 'coming-soon', 'tjanster', 'om-oss', 'kontakt'];
+      const scrollPosition = window.scrollY + 100;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -140,17 +210,16 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { id: 'hem', label: 'Hem' },
-    { id: 'axie-agent', label: 'Axie Agent' },
-    { id: 'coming-soon', label: 'Nytt Verktyg' },
-    { id: 'tjanster', label: 'Tjänster' },
-    { id: 'om-oss', label: 'Om Oss' },
-    { id: 'kontakt', label: 'Kontakt' }
+    { id: 'hem', label: 'Home' },
+    { id: 'axie-agent', label: 'Agent' },
+    { id: 'coming-soon', label: 'Builder' },
+    { id: 'tjanster', label: 'Features' },
+    { id: 'om-oss', label: 'About' },
+    { id: 'kontakt', label: 'Contact' }
   ];
 
   return (
     <NavContainer
-      scrolled={scrolled}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
@@ -161,7 +230,8 @@ const Navbar = () => {
           whileTap={{ scale: 0.95 }}
           onClick={(e) => handleNavClick(e, '#hem')}
         >
-          Axie Studio
+          <div className="logo-icon">A</div>
+          <div className="logo-text">Axie Studio</div>
         </Logo>
 
         <NavMenu isOpen={isOpen}>
@@ -173,14 +243,20 @@ const Navbar = () => {
               transition={{ delay: index * 0.1 }}
             >
               <NavLink
+                className={activeSection === item.id ? 'active' : ''}
                 onClick={(e) => handleNavClick(e, `#${item.id}`)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 {item.label}
               </NavLink>
             </NavItem>
           ))}
+          
+          <CTAButton
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Get Started
+          </CTAButton>
         </NavMenu>
 
         <Hamburger onClick={() => setIsOpen(!isOpen)}>
@@ -193,4 +269,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
