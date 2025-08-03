@@ -642,7 +642,7 @@ const Hero = () => {
               >
                 <IframeContainer>
                   <DemoIframe
-                    src="https://chatbotex1.netlify.app"
+                    src="https://axieagent.netlify.app"
                     title="Axie Studio AI Agent Demo"
                     allow="microphone; camera; geolocation"
                     sandbox="allow-scripts allow-forms allow-popups allow-presentation allow-same-origin"
