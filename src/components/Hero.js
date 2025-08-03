@@ -337,6 +337,12 @@ const DemoIframe = styled.iframe`
   border-radius: inherit;
   pointer-events: auto;
   scrolling: no;
+  overflow: hidden;
+  
+  /* Prevent any scroll manipulation */
+  &:focus {
+    outline: none;
+  }
 `;
 
 const LoadingOverlay = styled(motion.div)`
@@ -432,6 +438,69 @@ const Hero = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
+  // Prevent iframe from scrolling the parent page
+  useEffect(() => {
+    const preventIframeScroll = (e) => {
+      // If the event comes from an iframe, prevent it from bubbling
+      if (e.target.tagName === 'IFRAME') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    const preventWindowScroll = () => {
+      // Store current scroll position
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      
+      // Restore scroll position if it changes unexpectedly
+      window.onscroll = function() {
+        if (Math.abs(window.pageYOffset - scrollTop) > 50) {
+          window.scrollTo(scrollLeft, scrollTop);
+        }
+      };
+    };
+
+    // Add event listeners
+    document.addEventListener('scroll', preventIframeScroll, true);
+    document.addEventListener('wheel', preventIframeScroll, true);
+    
+    // Override window scroll methods temporarily
+    const originalScrollTo = window.scrollTo;
+    const originalScrollBy = window.scrollBy;
+    
+    let scrollLocked = false;
+    
+    window.scrollTo = function(...args) {
+      if (!scrollLocked) {
+        originalScrollTo.apply(this, args);
+      }
+    };
+    
+    window.scrollBy = function(...args) {
+      if (!scrollLocked) {
+        originalScrollBy.apply(this, args);
+      }
+    };
+
+    // Lock scroll when iframe is focused
+    const iframes = document.querySelectorAll('iframe');
+    iframes.forEach(iframe => {
+      iframe.addEventListener('focus', () => {
+        scrollLocked = true;
+        setTimeout(() => { scrollLocked = false; }, 1000);
+      });
+    });
+
+    return () => {
+      document.removeEventListener('scroll', preventIframeScroll, true);
+      document.removeEventListener('wheel', preventIframeScroll, true);
+      window.scrollTo = originalScrollTo;
+      window.scrollBy = originalScrollBy;
+      window.onscroll = null;
+    };
+  }, []);
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -579,9 +648,15 @@ const Hero = () => {
                     src="https://chatbotex1.netlify.app"
                     title="Axie Studio AI Agent Demo"
                     allow="microphone; camera"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+                    sandbox="allow-scripts allow-forms allow-popups allow-presentation"
                     scrolling="no"
-                    style={{ overflow: 'hidden' }}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    style={{ 
+                      overflow: 'hidden',
+                      pointerEvents: 'auto',
+                      isolation: 'isolate'
+                    }}
                   />
                   
                   {isLoading && (

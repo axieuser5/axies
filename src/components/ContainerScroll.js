@@ -107,6 +107,12 @@ const StyledIframe = styled.iframe`
   border-radius: inherit;
   pointer-events: auto;
   scrolling: no;
+  overflow: hidden;
+  
+  /* Prevent any scroll manipulation */
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const ContainerScroll = ({
@@ -216,9 +222,15 @@ export const AxieAgentContainer = () => {
           src="https://axieagent.netlify.app"
           title="Axie Agent - AI Assistant"
           allow="microphone; camera; geolocation"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+          sandbox="allow-scripts allow-forms allow-popups allow-presentation"
           scrolling="no"
-          style={{ overflow: 'hidden' }}
+          referrerPolicy="no-referrer"
+          loading="lazy"
+          style={{ 
+            overflow: 'hidden',
+            pointerEvents: 'auto',
+            isolation: 'isolate'
+          }}
         />
       </IframeWrapper>
     </ContainerScroll>

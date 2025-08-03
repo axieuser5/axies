@@ -9,6 +9,14 @@ const GlobalStyles = createGlobalStyle`
 
   html {
     scroll-behavior: auto;
+    overflow-x: hidden;
+    
+    /* Prevent iframe scroll manipulation */
+    &.iframe-scroll-lock {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
   }
 
   body {
@@ -17,6 +25,12 @@ const GlobalStyles = createGlobalStyle`
     color: ${props => props.theme.colors.text.primary};
     background-color: ${props => props.theme.colors.background.primary};
     overflow-x: hidden;
+    
+    /* Additional iframe isolation */
+    iframe {
+      isolation: isolate;
+      contain: layout style paint;
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
